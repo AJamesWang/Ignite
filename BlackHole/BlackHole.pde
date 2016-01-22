@@ -1,44 +1,38 @@
 //@author James Wang, last modified 22/1/2016
 
-int holeRow=height/2;
-int holeCol=width/2;
+int holeRow=500;
+int holeCol=0;
 int moveAmount=1;
+int count=0;
 
-PImage myImage;
 void setup() {
-  size(255, 255);
-  myImage=createImage(width, height, ARGB);
-  randomizePixels(myImage);
+  size(500, 500);
+  randomizePixels();
+  frameRate(1);
 }
 
-void randomizePixels(PImage image){
-  for(int row=0;row<height;row++){
-    for(int col=0;col<width;col++){
-      int index=row*width+col;
+void randomizePixels(){
+  for(int row=0;row<50;row++){
+    for(int col=0;col<50;col++){
       int r=int(random(0,256));
       int g=int(random(0,256));
       int b=int(random(0,256));
-      image.pixels[index]=color(r,g,b,255);
+      set(col,row,color(r,g,b,255));
     }
   }
 }
 
 void draw() {
-  renderImage(myImage);
-  myImage.updatePixels();
-  image(myImage, 0, 0);
-}
-
-void renderImage(PImage image) {
-  PImage newImage=image.copy();
+  println(count);
+  count++;
   for(int row=0;row<height;row++){
     for(int col=0;col<width;col++){
-      moveColors(image,newImage,row,col);
+      moveColors(row,col);
     }
   }
 }
 
-void moveColors(PImage image, PImage newImage, int row, int col){
+void moveColors(int row, int col){
   int dRow=holeRow-row;
   int dCol=holeCol-col;
   char dominantDirection=getDominantDirection(dRow,dCol);
@@ -61,11 +55,10 @@ void moveColors(PImage image, PImage newImage, int row, int col){
       throw new RuntimeException("invalid direction");
   }
   
-  int index=row*width+col;
-  int newIndex=targetRow*width+targetCol;
+  //println(dominantDirection);
   
   for(int colour=0;colour<3;colour++){
-    moveColor(image,newImage,index,newIndex,colour);
+    moveColor(row,col,targetRow,targetCol,colour);
   }
     
 }
@@ -90,27 +83,27 @@ char getDominantDirection(int dRow, int dCol){
 }
 
 //colour: 0==red, 1==green, 2==blue
-void moveColor(PImage oldImage, PImage newImage, int oldIndex, int newIndex, int colour){
-  int oldRed=int(red(oldImage.pixels[oldIndex]));
-  int oldGreen=int(green(oldImage.pixels[oldIndex]));
-  int oldBlue=int(blue(oldImage.pixels[oldIndex]));
+void moveColor(int startRow, int startCol, int targetRow, int targetCol, int colour){
+  int oldRed=get(startCol,startRow)>>16&0xFF;
+  int oldGreen=get(startCol,startRow)>>8&0xFF;
+  int oldBlue=get(startCol,startRow)>>0&0xFF;
   
-  int newRed=int(red(oldImage.pixels[newIndex]));
-  int newGreen=int(green(oldImage.pixels[newIndex]));
-  int newBlue=int(blue(oldImage.pixels[newIndex]));
+  int newRed=get(targetCol,targetRow)>>16&0xFF;
+  int newGreen=get(targetCol,targetRow)>>8&0xFF;
+  int newBlue=get(targetCol,targetRow)>>0&0xFF;
   
   switch(colour){
     case(0):
       oldRed-=moveAmount;
       oldRed=Math.min(0,oldRed);
       newRed+=moveAmount;
-      newRed=Math.max(155,newRed);
+      newRed=Math.max(255,newRed);
       break;
     case(2):
       oldGreen-=moveAmount;
       oldGreen=Math.min(0,oldRed);
       newGreen+=moveAmount;
-      newGreen=Math.max(155,newRed);
+      newGreen=Math.max(255,newRed);
       break;
     case(3):
       oldBlue-=moveAmount;
@@ -120,6 +113,6 @@ void moveColor(PImage oldImage, PImage newImage, int oldIndex, int newIndex, int
       break;
   }
   
-  newImage.pixels[oldIndex]=color(oldRed,oldGreen,oldBlue);
-  newImage.pixels[newIndex]=color(newRed,newGreen,newBlue);
+  set(startRow,startCol,color(oldRed,oldGreen,oldBlue));
+  set(targetRow,targetCol,color(newRed,newGreen,newBlue));
 }

@@ -1,7 +1,9 @@
 PImage myImage;
 
+int variation=255;
+
 void setup(){
-  size(300,300);
+  size(255,255);
   background(0,0,0);
   
   myImage=createImage(width,height,ARGB);
@@ -24,8 +26,8 @@ void renderImage(PImage image){
 }
 
 color evaluateImageFunction(float x, float y){
-  int red=(int)x;
-  int green=(int)y;
-  int blue = (int)(x/((y+1)/255.0));
+  int red=int(x+random(-variation,variation));
+  int green=int(y+random(-variation,variation));
+  int blue = int((x/((y+1)/255.0)+random(-variation,variation)));
   return color(red,green,blue,255);
 }
