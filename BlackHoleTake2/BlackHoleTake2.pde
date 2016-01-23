@@ -1,5 +1,7 @@
 //@author James Wang, last modified 23/1/2016
 
+PImage myImage;
+
 int holeRow=250;
 int holeCol=250;
 double moveAmountScalar=1;
@@ -7,40 +9,54 @@ int count=0;
 
 void setup() {
   size(500, 500);
+  myImage=new PImage(width,height,ARGB);
   //background(random(0,0),random(0,0),random(0,0));
   randomizePixels();
   smooth();
+  
 }
 
 void randomizePixels(){
-  for(int row=0;row<=500;row++){
-    for(int col=0;col<=500;col++){
+  for(int row=0;row<height;row++){
+    for(int col=0;col<width;col++){
       int r=int(random(0,256));
       int g=int(random(0,256));
       int b=int(random(0,256));
-      set(col,row,color(r,g,b,255));
+      
+      int index=row*width+col;
+      
+      myImage.pixels[index]=color(r,g,b,255);
     }
   }
   
 }
 
 void draw() {
-  //println(count);
-  count++; //<>//
-  for(int row=0;row<=height;row++){
-    for(int col=0;col<=width;col++){
-      moveColors(row,col);
-    }
-  }
+  renderImage();
+  myImage.updatePixels();
+  image(myImage,0,0);
 }
 
-void moveColors(int row, int col){  
-  int dRow=holeRow-row;
-  int dCol=holeCol-col;
+void renderImage(){
+  PImage nextImage=new PImage(width,height,ARGB);
+  //println(count);
+  count++;
+  for(int row=0;row<height;row++){
+    for(int col=0;col<width;col++){
+      moveColors(myImage,nextImage,row,col);
+    }
+  }
+  
+  myImage=nextImage;
+}
+
+void moveColors(PImage currentImage, PImage nextImage,int startRow, int startCol){  
+  int dRow=holeRow-startRow;
+  int dCol=holeCol-startCol;
   char dominantDirection=getDominantDirection(dRow,dCol);
   
-  int targetRow=row;
-  int targetCol=col;
+  int targetRow=startRow;
+  int targetCol=startCol;
   switch(dominantDirection){
     case('u'):
       targetRow--;
@@ -70,14 +86,16 @@ void moveColors(int row, int col){
     //print("here!"); //<>//
   }
   
+  int startIndex=startRow*width+startCol;
+  int targetIndex=targetRow*width+targetCol;
   for(int colour=0;colour<3;colour++){
-    moveColor(row,col,targetRow,targetCol, colour, moveAmount);
+    moveColor(currentImage,nextImage,startIndex,targetIndex, colour, moveAmount);
   }
     
 }
 
 char getDominantDirection(int dRow, int dCol){
-  /*char[] possibleDirections=new char[2];
+  char[] possibleDirections=new char[2];
   if(dRow<0){
     possibleDirections[0]='u';
   }
@@ -90,60 +108,60 @@ char getDominantDirection(int dRow, int dCol){
   else{
     possibleDirections[1]='r';
   }
-  return possibleDirections[int(random(0,2))];*/
-  if(Math.abs(dRow)>Math.abs(dCol)){
-    if(dRow<0){
-      return 'u';
-    }
-    else{
-      return 'd';
-    }
-  }
-  else{
-    if(dCol<0){
-      return 'l';
-    }
-    else{
-      return 'r';
-    }
-  }
+  return possibleDirections[int(random(0,2))];
+  //if(Math.abs(dRow)>Math.abs(dCol)){
+  //  if(dRow<0){
+  //    return 'u';
+  //  }
+  //  else{
+  //    return 'd';
+  //  }
+  //}
+  //else{
+  //  if(dCol<0){
+  //    return 'l';
+  //  }
+  //  else{
+  //    return 'r';
+  //  }
+  //}
 }
 
 //colour: 0==red, 1==green, 2==blue
-void moveColor(int startRow, int startCol, int targetRow, int targetCol, int colour, int moveAmount){
-  int oldRed=get(startCol,startRow)>>16&0xFF;
-  int oldGreen=get(startCol,startRow)>>8&0xFF;
-  int oldBlue=get(startCol,startRow)>>0&0xFF;
+void moveColor(PImage currentImage, PImage nextImage, int startIndex, int targetIndex, int colour, int moveAmount){
   
-  int newRed=get(targetCol,targetRow)>>16&0xFF;
-  int newGreen=get(targetCol,targetRow)>>8&0xFF;
-  int newBlue=get(targetCol,targetRow)>>0&0xFF;
+  int startRed=currentImage.pixels[startIndex]>>16&0xFF;
+  int startGreen=currentImage.pixels[startIndex]>>8&0xFF;
+  int startBlue=currentImage.pixels[startIndex]>>0&0xFF;
+  
+  int targetRed=currentImage.pixels[targetIndex]>>16&0xFF;
+  int targetGreen=currentImage.pixels[targetIndex]>>8&0xFF;
+  int targetBlue=currentImage.pixels[targetIndex]>>0&0xFF;
   
   int actualMoveAmount;
   
   switch(colour){
     case(0):
-      actualMoveAmount=oldRed-clamp(oldRed-moveAmount);
-      oldRed-=actualMoveAmount;
-      //newRed=clamp(newRed+moveAmount);
-      newRed+=actualMoveAmount;
+      actualMoveAmount=startRed-clamp(startRed-moveAmount);
+      startRed-=actualMoveAmount;
+      targetRed+=actualMoveAmount;
       break;
     case(1):
-      actualMoveAmount=oldGreen-clamp(oldGreen-moveAmount);
-      oldGreen-=actualMoveAmount;
-      newGreen+=actualMoveAmount;
+      actualMoveAmount=startGreen-clamp(startGreen-moveAmount);
+      startGreen-=actualMoveAmount;
+      targetGreen+=actualMoveAmount;
       break;
     case(2):
-      actualMoveAmount=oldBlue-clamp(oldBlue-moveAmount);
-      oldBlue-=actualMoveAmount;
-      newBlue+=actualMoveAmount;
+      actualMoveAmount=startBlue-clamp(startBlue-moveAmount);
+      startBlue-=actualMoveAmount;
+      targetBlue+=actualMoveAmount;
       break;
     default:
       throw new RuntimeException("invalid colour");
   }
   
-  set(startCol,startRow,color(oldRed,oldGreen,oldBlue));
-  set(targetCol,targetRow,color(newRed,newGreen,newBlue));
+  nextImage.pixels[startIndex]=color(startRed,startGreen,startBlue);
+  nextImage.pixels[targetIndex]=color(targetRed,targetGreen,targetBlue);
 }
 
 int clamp(int i){
