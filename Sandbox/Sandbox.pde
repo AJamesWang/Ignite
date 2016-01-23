@@ -1,39 +1,50 @@
 /*
- * Ex_Sierspinski Triangle Chaos Game Example
+ * Bouncing Ball Example.
  * Written by Grant Schwabacher.
  */
 
+float dx=10;  // Initial x position
+float dy=10;  // Initial y position
+float vx=-100;  // Initial x velocity
+float vy=-100;   // Inital y velocity
+float t=.1;   // Time steps
+float g=9.8;  // Acceleration due to gravity, where each pixel = 1 meter
+float vyf=0;  // Final y velocity
+float r=1;//.85;  // Coeficient of Restitution (Bounciness)
+
 void setup()
 {
-  size(600, 400);
+  size(700, 400);
   smooth();
-  background(255);
+  background(100);
+  frameRate(30/t);
 }
-
-int dx=200;
-int dy=300;
 
 void draw()
 {
-  stroke(#642EFE);
-  strokeWeight(2);
-  for (int i=0; i<100; i++)
+  background(100);
+  println("dx: " + dx + " dy: " + dy);
+  if(dx > (width - 5) && dy > (height - 5))
   {
-    switch(int(random(3)))
+    ellipse(dx,dy,10,10);
+  }
+  else 
+  {
+    println("final y: " + vyf + " y: " + vy);
+    ellipse(dx, dy, 10, 10);
+    vyf=vy+g*t; 
+    dy=dy+vy*t+.5*(vyf-vy)*t;
+    println("final dy: " + dy);
+    vy=vyf;
+    if(dy>(height-5) || dy<5)
     {
-      case 0:              // Points to do with bottom left vertex
-        dx=(200+dx)/2;
-        dy=(300+dy)/2;
-        break;
-      case 1:              // Points to do with bottom right vertex
-        dx=(400+dx)/2;
-        dy=(300+dy)/2;
-        break;
-      case 2:              // Points to do with top middle vertex
-        dx=(600/2+dx)/2;
-        dy=(100+dy)/2;
-        break;
+      vy=vy*(-r);
     }
-    point(dx, dy);
+    dx=dx+vx*t;
+    if(dx>(width-5) || dx<5)
+    {
+      vx=vx*(-r);
+    }
   }
 }
+  
