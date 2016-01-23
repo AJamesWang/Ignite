@@ -2,7 +2,7 @@
 
 int holeRow=250;
 int holeCol=250;
-double moveAmountScalar=1.0;
+double moveAmountScalar=1;
 int count=0;
 
 void setup() {
@@ -21,11 +21,12 @@ void randomizePixels(){
       set(col,row,color(r,g,b,255));
     }
   }
+  
 }
 
 void draw() {
   //println(count);
-  count++;
+  count++; //<>//
   for(int row=0;row<=height;row++){
     for(int col=0;col<=width;col++){
       moveColors(row,col);
@@ -37,25 +38,25 @@ void moveColors(int row, int col){
   int dRow=holeRow-row;
   int dCol=holeCol-col;
   char dominantDirection=getDominantDirection(dRow,dCol);
+  
   int targetRow=row;
   int targetCol=col;
-  
   switch(dominantDirection){
     case('u'):
       targetRow--;
-      targetRow=Math.max(0,targetRow);
+      //targetRow=Math.max(0,targetRow);
       break;
     case('d'):
       targetRow++;
-      targetRow=Math.min(height,targetRow);
+      //targetRow=Math.min(height,targetRow);
       break;
     case('l'):
       targetCol--;
-      targetCol=Math.max(0,targetCol);
+      //targetCol=Math.max(0,targetCol);
       break;
     case('r'):
       targetCol++;
-      targetCol=Math.min(width,targetCol);
+      //targetCol=Math.min(width,targetCol);
       break;
     default:
       throw new RuntimeException("invalid direction");
@@ -65,6 +66,10 @@ void moveColors(int row, int col){
   
   int moveAmount=(int)(Math.sqrt(Math.pow(dRow,2)+Math.pow(dCol,2))*moveAmountScalar);
   
+  if(dominantDirection=='u'||dominantDirection=='l'){
+    //print("here!"); //<>//
+  }
+  
   for(int colour=0;colour<3;colour++){
     moveColor(row,col,targetRow,targetCol, colour, moveAmount);
   }
@@ -72,7 +77,7 @@ void moveColors(int row, int col){
 }
 
 char getDominantDirection(int dRow, int dCol){
-  char[] possibleDirections=new char[2];
+  /*char[] possibleDirections=new char[2];
   if(dRow<0){
     possibleDirections[0]='u';
   }
@@ -85,8 +90,8 @@ char getDominantDirection(int dRow, int dCol){
   else{
     possibleDirections[1]='r';
   }
-  return possibleDirections[int(random(0,2))];
-  /*if(Math.abs(dRow)>Math.abs(dCol)){
+  return possibleDirections[int(random(0,2))];*/
+  if(Math.abs(dRow)>Math.abs(dCol)){
     if(dRow<0){
       return 'u';
     }
@@ -101,7 +106,7 @@ char getDominantDirection(int dRow, int dCol){
     else{
       return 'r';
     }
-  }*/
+  }
 }
 
 //colour: 0==red, 1==green, 2==blue
