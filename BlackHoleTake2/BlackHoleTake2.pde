@@ -2,20 +2,19 @@
 
 int holeRow=250;
 int holeCol=250;
-double moveAmountScalar=1.0/2;
+double moveAmountScalar=1.0;
 int count=0;
 
 void setup() {
   size(500, 500);
-  //background(random(0,256),random(0,256),random(0,256));
+  //background(random(0,0),random(0,0),random(0,0));
   randomizePixels();
   smooth();
-  frameRate(1);
 }
 
 void randomizePixels(){
-  for(int row=0;row<500;row++){
-    for(int col=0;col<500;col++){
+  for(int row=0;row<=500;row++){
+    for(int col=0;col<=500;col++){
       int r=int(random(0,256));
       int g=int(random(0,256));
       int b=int(random(0,256));
@@ -27,8 +26,8 @@ void randomizePixels(){
 void draw() {
   //println(count);
   count++;
-  for(int row=0;row<height;row++){
-    for(int col=0;col<width;col++){
+  for(int row=0;row<=height;row++){
+    for(int col=0;col<=width;col++){
       moveColors(row,col);
     }
   }
@@ -115,24 +114,24 @@ void moveColor(int startRow, int startCol, int targetRow, int targetCol, int col
   int newGreen=get(targetCol,targetRow)>>8&0xFF;
   int newBlue=get(targetCol,targetRow)>>0&0xFF;
   
+  int actualMoveAmount;
+  
   switch(colour){
     case(0):
-      oldRed-=moveAmount;
-      oldRed=Math.max(0,oldRed);
-      newRed+=moveAmount;
-      newRed=Math.min(255,newRed);
+      actualMoveAmount=oldRed-clamp(oldRed-moveAmount);
+      oldRed-=actualMoveAmount;
+      //newRed=clamp(newRed+moveAmount);
+      newRed+=actualMoveAmount;
       break;
     case(1):
-      oldGreen-=moveAmount;
-      oldGreen=Math.max(0,oldGreen);
-      newGreen+=moveAmount;
-      newGreen=Math.min(255,newGreen);
+      actualMoveAmount=oldGreen-clamp(oldGreen-moveAmount);
+      oldGreen-=actualMoveAmount;
+      newGreen+=actualMoveAmount;
       break;
     case(2):
-      oldBlue-=moveAmount;
-      oldBlue=Math.max(0,oldBlue);
-      newBlue+=moveAmount;
-      newBlue=Math.min(255,newBlue);
+      actualMoveAmount=oldBlue-clamp(oldBlue-moveAmount);
+      oldBlue-=actualMoveAmount;
+      newBlue+=actualMoveAmount;
       break;
     default:
       throw new RuntimeException("invalid colour");
@@ -140,4 +139,12 @@ void moveColor(int startRow, int startCol, int targetRow, int targetCol, int col
   
   set(startCol,startRow,color(oldRed,oldGreen,oldBlue));
   set(targetCol,targetRow,color(newRed,newGreen,newBlue));
+}
+
+int clamp(int i){
+  return Math.min(255,Math.max(0,i));
+}
+
+int loop(int i){
+  return i%256;
 }
