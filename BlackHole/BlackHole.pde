@@ -1,19 +1,21 @@
-//@author James Wang, last modified 22/1/2016
+//@author James Wang, last modified 23/1/2016
 
-int holeRow=500;
-int holeCol=0;
-int moveAmount=1;
+int holeRow=200;
+int holeCol=300;
+double moveAmountScalar=1.0/2;
 int count=0;
 
 void setup() {
   size(500, 500);
-  randomizePixels();
-  frameRate(1);
+  background(random(0,256),random(0,256),random(0,256));
+  //randomizePixels();
+  smooth();
+  frameRate(6000);
 }
 
 void randomizePixels(){
-  for(int row=0;row<50;row++){
-    for(int col=0;col<50;col++){
+  for(int row=0;row<500;row++){
+    for(int col=0;col<500;col++){
       int r=int(random(0,256));
       int g=int(random(0,256));
       int b=int(random(0,256));
@@ -23,7 +25,7 @@ void randomizePixels(){
 }
 
 void draw() {
-  println(count);
+  //println(count);
   count++;
   for(int row=0;row<height;row++){
     for(int col=0;col<width;col++){
@@ -32,24 +34,29 @@ void draw() {
   }
 }
 
-void moveColors(int row, int col){
+void moveColors(int row, int col){  
   int dRow=holeRow-row;
   int dCol=holeCol-col;
   char dominantDirection=getDominantDirection(dRow,dCol);
   int targetRow=row;
   int targetCol=col;
+  
   switch(dominantDirection){
     case('u'):
-      targetRow++;
+      targetRow--;
+      targetRow=Math.max(0,targetRow);
       break;
     case('d'):
-      targetRow--;
+      targetRow++;
+      targetRow=Math.min(height,targetRow);
       break;
     case('l'):
       targetCol--;
+      targetCol=Math.max(0,targetCol);
       break;
     case('r'):
       targetCol++;
+      targetCol=Math.min(width,targetCol);
       break;
     default:
       throw new RuntimeException("invalid direction");
@@ -57,8 +64,10 @@ void moveColors(int row, int col){
   
   //println(dominantDirection);
   
+  int moveAmount=(int)(Math.sqrt(Math.pow(dRow,2)+Math.pow(dCol,2))*moveAmountScalar);
+  
   for(int colour=0;colour<3;colour++){
-    moveColor(row,col,targetRow,targetCol,colour);
+    moveColor(row,col,targetRow,targetCol, colour, moveAmount);
   }
     
 }
@@ -66,10 +75,10 @@ void moveColors(int row, int col){
 char getDominantDirection(int dRow, int dCol){
   if(Math.abs(dRow)>Math.abs(dCol)){
     if(dRow<0){
-      return 'd';
+      return 'u';
     }
     else{
-      return 'u';
+      return 'd';
     }
   }
   else{
@@ -83,7 +92,7 @@ char getDominantDirection(int dRow, int dCol){
 }
 
 //colour: 0==red, 1==green, 2==blue
-void moveColor(int startRow, int startCol, int targetRow, int targetCol, int colour){
+void moveColor(int startRow, int startCol, int targetRow, int targetCol, int colour, int moveAmount){
   int oldRed=get(startCol,startRow)>>16&0xFF;
   int oldGreen=get(startCol,startRow)>>8&0xFF;
   int oldBlue=get(startCol,startRow)>>0&0xFF;
@@ -95,24 +104,26 @@ void moveColor(int startRow, int startCol, int targetRow, int targetCol, int col
   switch(colour){
     case(0):
       oldRed-=moveAmount;
-      oldRed=Math.min(0,oldRed);
+      oldRed=oldRed%255;//Math.max(0,oldRed);
       newRed+=moveAmount;
-      newRed=Math.max(255,newRed);
+      newRed=newRed%255;//Math.min(255,newRed);
+      break;
+    case(1):
+      oldGreen-=moveAmount;
+      oldGreen=oldGreen%255;//Math.max(0,oldGreen);
+      newGreen+=moveAmount;
+      newGreen=newGreen%255;//Math.min(255,newGreen);
       break;
     case(2):
-      oldGreen-=moveAmount;
-      oldGreen=Math.min(0,oldRed);
-      newGreen+=moveAmount;
-      newGreen=Math.max(255,newRed);
-      break;
-    case(3):
       oldBlue-=moveAmount;
-      oldBlue=Math.min(0,oldRed);
+      oldBlue=oldBlue%255;//Math.max(0,oldBlue);
       newBlue+=moveAmount;
-      newBlue=Math.max(155,newRed);
+      newBlue=newBlue%255;//Math.min(255,newBlue);
       break;
+    default:
+      throw new RuntimeException("invalid colour");
   }
   
-  set(startRow,startCol,color(oldRed,oldGreen,oldBlue));
-  set(targetRow,targetCol,color(newRed,newGreen,newBlue));
+  set(startCol,startRow,color(oldRed,oldGreen,oldBlue));
+  set(targetCol,targetRow,color(newRed,newGreen,newBlue));
 }
