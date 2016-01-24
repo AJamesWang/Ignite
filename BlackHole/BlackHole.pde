@@ -10,7 +10,6 @@ void setup() {
   background(random(0,256),random(0,256),random(0,256));
   //randomizePixels();
   smooth();
-  frameRate(6000);
 }
 
 void randomizePixels(){

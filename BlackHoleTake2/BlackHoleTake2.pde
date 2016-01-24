@@ -19,13 +19,13 @@ void setup() {
 void randomizePixels(){
   for(int row=0;row<height;row++){
     for(int col=0;col<width;col++){
-      int r=int(random(0,256));
-      int g=int(random(0,256));
-      int b=int(random(0,256));
+      int r=int(random(255,256));
+      int g=int(random(255,256));
+      int b=int(random(255,256));
       
       int index=row*width+col;
       
-      myImage.pixels[index]=color(r,g,b,255);
+      myImage.pixels[index]=color(r,g,b);
     }
   }
   
@@ -97,33 +97,33 @@ void moveColors(PImage currentImage, PImage nextImage,int startRow, int startCol
 char getDominantDirection(int dRow, int dCol){
   char[] possibleDirections=new char[2];
   if(dRow<0){
-    possibleDirections[0]='u';
+   possibleDirections[0]='u';
   }
   else{
-    possibleDirections[0]='d';
+   possibleDirections[0]='d';
   }
   if(dCol<0){
-    possibleDirections[1]='l';
+   possibleDirections[1]='l';
   }
   else{
-    possibleDirections[1]='r';
+   possibleDirections[1]='r';
   }
   return possibleDirections[int(random(0,2))];
   //if(Math.abs(dRow)>Math.abs(dCol)){
-  //  if(dRow<0){
-  //    return 'u';
-  //  }
-  //  else{
-  //    return 'd';
-  //  }
+  // if(dRow<0){
+  //   return 'u';
+  // }
+  // else{
+  //   return 'd';
+  // }
   //}
   //else{
-  //  if(dCol<0){
-  //    return 'l';
-  //  }
-  //  else{
-  //    return 'r';
-  //  }
+  // if(dCol<0){
+  //   return 'l';
+  // }
+  // else{
+  //   return 'r';
+  // }
   //}
 }
 
@@ -144,18 +144,19 @@ void moveColor(PImage currentImage, PImage nextImage, int startIndex, int target
     case(0):
       actualMoveAmount=startRed-clamp(startRed-moveAmount);
       startRed-=actualMoveAmount;
-      targetRed+=actualMoveAmount;
+      targetRed=clamp(targetRed+actualMoveAmount);
       break;
     case(1):
+      //print("here");
       actualMoveAmount=startGreen-clamp(startGreen-moveAmount);
       startGreen-=actualMoveAmount;
-      targetGreen+=actualMoveAmount;
-      break;
+      targetGreen=clamp(targetGreen+actualMoveAmount);
+      break; //<>//
     case(2):
       actualMoveAmount=startBlue-clamp(startBlue-moveAmount);
       startBlue-=actualMoveAmount;
-      targetBlue+=actualMoveAmount;
-      break;
+      targetBlue=clamp(targetBlue+actualMoveAmount);
+      break; //<>//
     default:
       throw new RuntimeException("invalid colour");
   }
