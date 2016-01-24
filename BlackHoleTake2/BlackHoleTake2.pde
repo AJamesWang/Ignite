@@ -4,7 +4,7 @@ PImage myImage;
 
 int holeRow=250;
 int holeCol=250;
-double moveAmountScalar=1;
+double moveAmountScalar=200;
 int count=0;
 
 void setup() {
@@ -28,17 +28,21 @@ void randomizePixels(){
       myImage.pixels[index]=color(r,g,b);
     }
   }
+  myImage.updatePixels();
   
 }
 
 void draw() {
-  renderImage();
+  if(count==200){
+    print("hi");
+  }
+  renderImage(); //<>//
   myImage.updatePixels();
   image(myImage,0,0);
 }
 
 void renderImage(){
-  PImage nextImage=new PImage(width,height,ARGB);
+  PImage nextImage=myImage.copy();
   //println(count);
   count++;
   for(int row=0;row<height;row++){
@@ -83,7 +87,7 @@ void moveColors(PImage currentImage, PImage nextImage,int startRow, int startCol
   int moveAmount=(int)(Math.sqrt(Math.pow(dRow,2)+Math.pow(dCol,2))*moveAmountScalar);
   
   if(dominantDirection=='u'||dominantDirection=='l'){
-    //print("here!"); //<>//
+    //print("here!");
   }
   
   int startIndex=startRow*width+startCol;
@@ -95,74 +99,73 @@ void moveColors(PImage currentImage, PImage nextImage,int startRow, int startCol
 }
 
 char getDominantDirection(int dRow, int dCol){
-  char[] possibleDirections=new char[2];
-  if(dRow<0){
-   possibleDirections[0]='u';
-  }
-  else{
-   possibleDirections[0]='d';
-  }
-  if(dCol<0){
-   possibleDirections[1]='l';
-  }
-  else{
-   possibleDirections[1]='r';
-  }
-  return possibleDirections[int(random(0,2))];
-  //if(Math.abs(dRow)>Math.abs(dCol)){
-  // if(dRow<0){
-  //   return 'u';
-  // }
-  // else{
-  //   return 'd';
-  // }
+  //char[] possibleDirections=new char[2];
+  //if(dRow<0){
+  // possibleDirections[0]='u';
   //}
   //else{
-  // if(dCol<0){
-  //   return 'l';
-  // }
-  // else{
-  //   return 'r';
-  // }
+  // possibleDirections[0]='d';
   //}
+  //if(dCol<0){
+  // possibleDirections[1]='l';
+  //}
+  //else{
+  // possibleDirections[1]='r';
+  //}
+  //return possibleDirections[int(random(0,2))];
+  if(Math.abs(dRow)>Math.abs(dCol)){
+    if(dRow<0){
+      return 'u';
+    }
+    else{
+      return 'd';
+    }
+  }
+  else{
+    if(dCol<0){
+      return 'l';
+    }
+    else{
+      return 'r';
+    }
+  }
 }
 
 //colour: 0==red, 1==green, 2==blue
 void moveColor(PImage currentImage, PImage nextImage, int startIndex, int targetIndex, int colour, int moveAmount){
-  
-  int startRed=currentImage.pixels[startIndex]>>16&0xFF;
-  int startGreen=currentImage.pixels[startIndex]>>8&0xFF;
-  int startBlue=currentImage.pixels[startIndex]>>0&0xFF;
-  
-  int targetRed=currentImage.pixels[targetIndex]>>16&0xFF;
-  int targetGreen=currentImage.pixels[targetIndex]>>8&0xFF;
-  int targetBlue=currentImage.pixels[targetIndex]>>0&0xFF;
-  
+  int startColour;
+  int targetColour;
   int actualMoveAmount;
   
+  //assumes that each pixel is only modified once.
   switch(colour){
     case(0):
-      actualMoveAmount=startRed-clamp(startRed-moveAmount);
-      startRed-=actualMoveAmount;
-      targetRed=clamp(targetRed+actualMoveAmount);
+      startColour=currentImage.pixels[startIndex]>>16&0xff;
+      targetColour=currentImage.pixels[targetIndex]>>16&0xff;
+      actualMoveAmount=startColour-clamp(startColour-moveAmount);
+      startColour=(startColour-actualMoveAmount)<<16;
+      targetColour=(targetColour+actualMoveAmount)<<16;
       break;
     case(1):
-      //print("here");
-      actualMoveAmount=startGreen-clamp(startGreen-moveAmount);
-      startGreen-=actualMoveAmount;
-      targetGreen=clamp(targetGreen+actualMoveAmount);
-      break; //<>//
+      startColour=currentImage.pixels[startIndex]>>8&0xff;
+      targetColour=currentImage.pixels[targetIndex]>>8&0xff;
+      actualMoveAmount=startColour-clamp(startColour-moveAmount);
+      startColour=(startColour-actualMoveAmount)<<8;
+      targetColour=(targetColour+actualMoveAmount)<<8;
+      break;
     case(2):
-      actualMoveAmount=startBlue-clamp(startBlue-moveAmount);
-      startBlue-=actualMoveAmount;
-      targetBlue=clamp(targetBlue+actualMoveAmount);
-      break; //<>//
+      startColour=currentImage.pixels[startIndex]>>0&0xff;
+      targetColour=currentImage.pixels[targetIndex]>>0&0xff;
+      actualMoveAmount=startColour-clamp(startColour-moveAmount);
+      startColour=(startColour-actualMoveAmount)<<0;
+      targetColour=(targetColour+actualMoveAmount)<<0;
+      break;
     default:
       throw new RuntimeException("invalid colour");
   }
   
-  nextImage.pixels[startIndex]=color(startRed,startGreen,startBlue);
-  nextImage.pixels[targetIndex]=color(targetRed,targetGreen,targetBlue);
+  nextImage.pixels[startIndex]+=startColour;
+  nextImage.pixels[targetIndex]+=targetColour;
 }
 
 int clamp(int i){
