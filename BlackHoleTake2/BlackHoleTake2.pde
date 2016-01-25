@@ -160,7 +160,8 @@ void moveColor(PImage currentImage, PImage nextImage, int startIndex, int target
     default:
       throw new RuntimeException("invalid colour");
   }
-  
+  //@debug
+  int startColor=nextImage.pixels[startIndex];
   nextImage.pixels[startIndex]=color(startRed,startGreen,startBlue);
   nextImage.pixels[targetIndex]=color(targetRed,targetGreen,targetBlue);
 }
