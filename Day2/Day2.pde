@@ -60,7 +60,7 @@ void draw(){
   if(counter%beatFreq==0){
     change();
   }
-  counter++;
+  counter++; //<>//
 }
 
 void drawMain(){
@@ -96,14 +96,10 @@ void doMainPhysics(){
 
 void doChildPhysics(){
   for(ArrayList<Integer> childData:children){
-    println("physics");   
     int x=childData.get(0);
     int y=childData.get(1);
     int dX=childData.get(2);
     int dY=childData.get(3);
-    
-    //println("x:" + x);
-    //println("y:" + y);
     
     childData.set(0,x+dX); //<>//
     childData.set(1,y+dY);
@@ -111,31 +107,30 @@ void doChildPhysics(){
     x=childData.get(0);
     y=childData.get(1);
     
-    println("new x: "+childData.get(0));
-    println("new y: "+childData.get(1));
-    
     if(isOutOfBoundsX(x,childRadius)){
       childData.set(2,-dX);
-   //   println("x: " + x);
     }
     if(isOutOfBoundsY(y,childRadius)){
       childData.set(3,-dY);
-    //  println("y: " + y);
     }
     
     for(ArrayList<Integer> childData2:children){
       if(childData2!=childData){
         int x2=childData2.get(0);
         int y2=childData2.get(1);
+        
         int dx=x2-x;
         int dy=y2-y;
-        
         int distance=(int)Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
         
         if(distance<2*childRadius){
           int[] newV=collide(dX,dY,childData2.get(2),childData2.get(3),childRadius,childRadius);
+          //int[] newV2=collide(childData2.get(2),childData2.get(3),dX,dY,childRadius,childRadius);
           childData.set(2,newV[0]);
           childData.set(3,newV[1]);
+          //childData2.set(2,newV2[0]);
+          //childData2.set(3,newV2[1]);
+          break;
         }
       }
     }

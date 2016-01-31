@@ -5,7 +5,7 @@ int height=500;
 int holeX=width/2;
 int holeY=height/2;
 
-int moveAmountScalar=1;
+int moveAmountScalar=50;
 
 void setup() {
   size(500, 500);
@@ -34,17 +34,17 @@ void draw() {
 }
 
 void renderImage(PImage myImage) {
-  PImage newImage=new PImage(width, height, ARGB);
+  PImage newImage=myImage.copy();
 
   for (int y=0; y<myImage.height; y++) {
-    for (int x=0; x<myImage.width; x++) {
-      println(myImage.height);
-      println(myImage.width);
-      int index=y*width+height;
-      for (int shift=0; shift<=16; shift+=8) {
-        move(myImage, newImage, index, shift);
-      }
-    }
+   for (int x=0; x<myImage.width; x++) {
+     //println(myImage.height);
+     //println(myImage.width);
+     int index=y*myImage.width+x;
+     for (int shift=0; shift<=16; shift+=8) {
+       move(myImage, newImage, index, shift);
+     }
+   }
   }
   myImage=newImage;
 }
@@ -55,18 +55,19 @@ void move(PImage currentImage, PImage newImage, int startIndex, int colorShift) 
   int startColorAmount=currentImage.pixels[startIndex]>>colorShift&0xff;
   int targetColorAmount=currentImage.pixels[targetIndex]>>colorShift&0xff;
   
-  int moveAmount=Math.min(moveAmountScalar,Math.min(256-targetColorAmount,startColorAmount));
+  int moveAmount=Math.min(moveAmountScalar,Math.min(256-targetColorAmount-1,startColorAmount));
   
-  startColorAmount-=moveAmount;
+  /*startColorAmount-=moveAmount;
   targetColorAmount+=moveAmount;
   
   //note: does <<-8 equal >>8?
   int eraser=0xffffffff>>(colorShift+8)<<(colorShift+8)+0xff<<(colorShift-8);
   startColorAmount=startColorAmount<<colorShift;
-  targetColorAmount=targetColorAmount<<colorShift;
+  targetColorAmount=targetColorAmount<<colorShift;*/
+  moveAmount=moveAmount<<colorShift; //<>//
   
-  newImage.pixels[startIndex]=newImage.pixels[startIndex]&eraser+startColorAmount;
-  newImage.pixels[targetIndex]=newImage.pixels[targetIndex]&eraser+targetColorAmount;
+  newImage.pixels[startIndex]-=moveAmount;//&eraser+startColorAmount;
+  newImage.pixels[targetIndex]+=moveAmount;//&eraser+targetColorAmount;
 }
 
 int getTargetIndex(PImage image, int startIndex) {
