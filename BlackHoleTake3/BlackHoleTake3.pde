@@ -35,11 +35,11 @@ void draw() {
 
 void renderImage(PImage myImage) {
   PImage newImage=new PImage(width, height, ARGB);
+  println(myImage.height);
+  println(myImage.width);
 
   for (int y=0; y<myImage.height; y++) {
     for (int x=0; x<myImage.width; x++) {
-      println(myImage.height);
-      println(myImage.width);
       int index=y*width+height;
       for (int shift=0; shift<=16; shift+=8) {
         move(myImage, newImage, index, shift);
